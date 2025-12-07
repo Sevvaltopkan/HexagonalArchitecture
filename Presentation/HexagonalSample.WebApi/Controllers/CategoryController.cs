@@ -1,5 +1,6 @@
-﻿using HexagonalSample.Application.DtoClasses.Categories;
-using HexagonalSample.Application.PrimaryPorts.CategoryPorts;
+﻿using HexagonalSample.Application.DtoClasses.Categories.Commands;
+using HexagonalSample.Application.DtoClasses.Categories.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -9,33 +10,54 @@ using System.Threading.Tasks;
 
 namespace HexagonalSample.WebApi.Controllers
 {
-    //Dikkat ettiyseniz artık Composition Root normal şartlardaki gibi bu katmanda degildir...BUrası sadece bir Controller kütüphanesidir...Geliştirme bu alanda yapılacaktır...Middleware girişlerinden burasının haberi yoktur...Bu size Persistence'tan tamamen izole olmayı saglar..Ve geliştirirken kullanmamanız gereken , Encapsulation'i bozacak tiplerden uzak bir alan saglar...
-
     [ApiController]
     [Route("api/[controller]")]
-    
     public class CategoryController : ControllerBase
     {
-        private readonly ICreateCategoryUseCase _createCategoryUseCase;
+        private readonly IMediator _mediator;
 
-        public CategoryController(ICreateCategoryUseCase createCategoryUseCase)
+        public CategoryController(IMediator mediator)
         {
-            _createCategoryUseCase = createCategoryUseCase;
+            _mediator = mediator;
         }
 
-        public record CreateCategoryRequest(string Name,string Description);
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _mediator.Send(new GetAllCategoriesQuery());
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _mediator.Send(new GetCategoryByIdQuery { Id = id });
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
+        public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command)
         {
-            CreateCategoryCommand command = new()
-            {
-                Name = request.Name,
-                Description = request.Description
-            };
+            var id = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetById), new { id }, new { id });
+        }
 
-            await _createCategoryUseCase.ExecuteAsync(command);
-            return Ok("Category created");
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryCommand command)
+        {
+            command.Id = id;
+            var result = await _mediator.Send(command);
+            if (!result) return NotFound();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _mediator.Send(new DeleteCategoryCommand { Id = id });
+            if (!result) return NotFound();
+            return NoContent();
         }
     }
 }

@@ -13,5 +13,6 @@ namespace HexagonalSample.Domain.Entities
 
         //Relational Properties
         public virtual ICollection<Product> Products { get; set; }
+        public virtual ICollection<Book> Books { get; set; }
     }
 }

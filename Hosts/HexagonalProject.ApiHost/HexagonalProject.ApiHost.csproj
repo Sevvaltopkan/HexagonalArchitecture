@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\HexagonalSample.Application\HexagonalSample.Application.csproj" />
     <ProjectReference Include="..\..\Infrastructure\HexagonalSample.Persistence\HexagonalSample.Persistence.csproj" />
     <ProjectReference Include="..\..\Presentation\HexagonalSample.WebApi\HexagonalSample.WebApi.csproj" />
   </ItemGroup>

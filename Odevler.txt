@@ -1,4 +1,4 @@
-﻿1 => Author-Book-Category-Tag semasını Hexagonal mimari ile tüm entityler icin Crud olacak şekilde tasarlayınız
+﻿
 
 2 => UseCase Resolving ve DbContext Resolving'i ilgili katmanlara cekerek Single Responsibility'e uygun olmasını saglayınız
 

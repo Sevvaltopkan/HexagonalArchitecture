@@ -1,0 +1,295 @@
+╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                  HEXAGONAL ARCHITECTURE (PORTS & ADAPTERS)                          ║
+║                                         HexagonalSample Projesi                                      ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+
+                                    ┌─────────────────────────────────────┐
+                                    │         DRIVING ADAPTERS            │
+                                    │   (Primary/Inbound Adapters)        │
+                                    │                                     │
+                                    │  ┌─────────────────────────────┐    │
+                                    │  │    HexagonalSample.WebApi   │    │
+                                    │  │  ┌───────────────────────┐  │    │
+                                    │  │  │ CategoryController    │  │    │
+                                    │  │  │ AuthorController      │  │    │
+                                    │  │  │ BookController        │  │    │
+                                    │  │  │ TagController         │  │    │
+                                    │  │  └───────────────────────┘  │    │
+                                    │  └─────────────────────────────┘    │
+                                    │                                     │
+                                    │  ┌─────────────────────────────┐    │
+                                    │  │  HexagonalProject.ApiHost   │    │
+                                    │  │  (Composition Root)         │    │
+                                    │  │  - Program.cs               │    │
+                                    │  │  - DI Container Setup       │    │
+                                    │  └─────────────────────────────┘    │
+                                    └─────────────────┬───────────────────┘
+                                                      │
+                                                      │ IMediator.Send()
+                                                      ▼
+┌───────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                       │
+│   ╔═══════════════════════════════════════════════════════════════════════════════════════════════╗   │
+│   ║                               PRIMARY PORTS (Input Ports)                                     ║   │
+│   ║                                                                                               ║   │
+│   ║   ┌─────────────────────────────────────────────────────────────────────────────────────┐     ║   │
+│   ║   │                    Commands (CQRS Write Operations)                                 │     ║   │
+│   ║   │  CreateCategoryCommand, UpdateCategoryCommand, DeleteCategoryCommand               │     ║   │
+│   ║   │  CreateAuthorCommand, UpdateAuthorCommand, DeleteAuthorCommand                     │     ║   │
+│   ║   │  CreateBookCommand, UpdateBookCommand, DeleteBookCommand                           │     ║   │
+│   ║   │  CreateTagCommand, UpdateTagCommand, DeleteTagCommand                              │     ║   │
+│   ║   └─────────────────────────────────────────────────────────────────────────────────────┘     ║   │
+│   ║                                                                                               ║   │
+│   ║   ┌─────────────────────────────────────────────────────────────────────────────────────┐     ║   │
+│   ║   │                    Queries (CQRS Read Operations)                                   │     ║   │
+│   ║   │  GetAllCategoriesQuery, GetCategoryByIdQuery                                        │     ║   │
+│   ║   │  GetAllAuthorsQuery, GetAuthorByIdQuery                                             │     ║   │
+│   ║   │  GetAllBooksQuery, GetBookByIdQuery                                                 │     ║   │
+│   ║   │  GetAllTagsQuery, GetTagByIdQuery                                                   │     ║   │
+│   ║   └─────────────────────────────────────────────────────────────────────────────────────┘     ║   │
+│   ╚═══════════════════════════════════════════════════════════════════════════════════════════════╝   │
+│                                                                                                       │
+│   ╔═══════════════════════════════════════════════════════════════════════════════════════════════╗   │
+│   ║                                    APPLICATION CORE                                           ║   │
+│   ║                             HexagonalSample.Application                                       ║   │
+│   ║                                                                                               ║   │
+│   ║   ┌─────────────────────────────────────────────────────────────────────────────────────┐     ║   │
+│   ║   │                        USE CASES (MediatR Handlers)                                 │     ║   │
+│   ║   │                                                                                     │     ║   │
+│   ║   │   Commands/                          │   Queries/                                   │     ║   │
+│   ║   │   ├── CreateCategoryHandler          │   ├── GetAllCategoriesHandler                │     ║   │
+│   ║   │   ├── UpdateCategoryHandler          │   ├── GetCategoryByIdHandler                 │     ║   │
+│   ║   │   ├── DeleteCategoryHandler          │   ├── GetAllAuthorsHandler                   │     ║   │
+│   ║   │   ├── CreateAuthorHandler            │   ├── GetAuthorByIdHandler                   │     ║   │
+│   ║   │   ├── UpdateAuthorHandler            │   ├── GetAllBooksHandler                     │     ║   │
+│   ║   │   ├── DeleteAuthorHandler            │   ├── GetBookByIdHandler                     │     ║   │
+│   ║   │   ├── CreateBookHandler              │   ├── GetAllTagsHandler                      │     ║   │
+│   ║   │   ├── UpdateBookHandler              │   └── GetTagByIdHandler                      │     ║   │
+│   ║   │   ├── DeleteBookHandler              │                                              │     ║   │
+│   ║   │   ├── CreateTagHandler               │                                              │     ║   │
+│   ║   │   ├── UpdateTagHandler               │                                              │     ║   │
+│   ║   │   └── DeleteTagHandler               │                                              │     ║   │
+│   ║   └─────────────────────────────────────────────────────────────────────────────────────┘     ║   │
+│   ║                                                                                               ║   │
+│   ║   ┌─────────────────────────────────────────────────────────────────────────────────────┐     ║   │
+│   ║   │                           DependencyResolvers/                                      │     ║   │
+│   ║   │                           └── UseCaseResolver.cs                                    │     ║   │
+│   ║   │                               (MediatR Handler Registration)                        │     ║   │
+│   ║   └─────────────────────────────────────────────────────────────────────────────────────┘     ║   │
+│   ╚═══════════════════════════════════════════════════════════════════════════════════════════════╝   │
+│                                                                                                       │
+│   ╔═══════════════════════════════════════════════════════════════════════════════════════════════╗   │
+│   ║                                     DOMAIN CORE                                               ║   │
+│   ║                               HexagonalSample.Domain                                          ║   │
+│   ║                                                                                               ║   │
+│   ║   ┌─────────────────────────────────────────────────────────────────────────────────────┐     ║   │
+│   ║   │                              ENTITIES                                               │     ║   │
+│   ║   │                                                                                     │     ║   │
+│   ║   │   BaseEntity (abstract)                                                             │     ║   │
+│   ║   │   ├── Id, CreatedDate, UpdatedDate, DeletedDate                                     │     ║   │
+│   ║   │   │                                                                                 │     ║   │
+│   ║   │   ├── Category                      ├── Author                                      │     ║   │
+│   ║   │   │   └── CategoryName, Description │   └── FirstName, LastName, Biography          │     ║   │
+│   ║   │   │                                 │                                               │     ║   │
+│   ║   │   ├── Product                       ├── Book                                        │     ║   │
+│   ║   │   │   └── ProductName, UnitPrice    │   └── Title, ISBN, PageCount, Price           │     ║   │
+│   ║   │   │                                 │                                               │     ║   │
+│   ║   │   ├── Tag                           └── BookTag (Many-to-Many Junction)             │     ║   │
+│   ║   │   │   └── Name, Description             └── BookId, TagId                           │     ║   │
+│   ║   └─────────────────────────────────────────────────────────────────────────────────────┘     ║   │
+│   ║                                                                                               ║   │
+│   ║   ┌─────────────────────────────────────────────────────────────────────────────────────┐     ║   │
+│   ║   │                        SECONDARY PORTS (Output Ports)                               │     ║   │
+│   ║   │                                                                                     │     ║   │
+│   ║   │   ICategoryRepository        IAuthorRepository                                      │     ║   │
+│   ║   │   IProductRepository         IBookRepository                                        │     ║   │
+│   ║   │   ITagRepository             IBookTagRepository                                     │     ║   │
+│   ║   └─────────────────────────────────────────────────────────────────────────────────────┘     ║   │
+│   ╚═══════════════════════════════════════════════════════════════════════════════════════════════╝   │
+│                                                                                                       │
+└───────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                      │
+                                                      │ Repository Interface
+                                                      ▼
+                                    ┌─────────────────────────────────────┐
+                                    │         DRIVEN ADAPTERS             │
+                                    │   (Secondary/Outbound Adapters)     │
+                                    │                                     │
+                                    │  ┌─────────────────────────────┐    │
+                                    │  │ HexagonalSample.Persistence │    │
+                                    │  │                             │    │
+                                    │  │  EFData/                    │    │
+                                    │  │  └── MyContext.cs           │    │
+                                    │  │                             │    │
+                                    │  │  EFRepositories/            │    │
+                                    │  │  ├── CategoryRepository     │    │
+                                    │  │  ├── ProductRepository      │    │
+                                    │  │  ├── AuthorRepository       │    │
+                                    │  │  ├── BookRepository         │    │
+                                    │  │  ├── TagRepository          │    │
+                                    │  │  └── BookTagRepository      │    │
+                                    │  │                             │    │
+                                    │  │  DependencyResolvers/       │    │
+                                    │  │  ├── DbContextResolver.cs   │    │
+                                    │  │  └── RepositoryResolver.cs  │    │
+                                    │  └─────────────────────────────┘    │
+                                    └─────────────────┬───────────────────┘
+                                                      │
+                                                      ▼
+                                    ┌─────────────────────────────────────┐
+                                    │           DATABASE                  │
+                                    │         (SQL Server)                │
+                                    └─────────────────────────────────────┘
+
+
+╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                     DEPENDENCY FLOW                                                 ║
+╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║                                                                                                    ║
+║   ┌──────────────────────┐                                                                         ║
+║   │ HexagonalProject     │ ────────────────────────────────────────────────────────────────────►   ║
+║   │ ApiHost              │     references (all layers for DI composition)                         ║
+║   └──────────────────────┘                                                                         ║
+║            │                                                                                       ║
+║            ▼                                                                                       ║
+║   ┌──────────────────────┐                                                                         ║
+║   │ HexagonalSample      │ ────────► HexagonalSample.Application                                   ║
+║   │ WebApi               │                      │                                                  ║
+║   └──────────────────────┘                      ▼                                                  ║
+║                                        HexagonalSample.Domain (Core)                               ║
+║                                                 ▲                                                  ║
+║   ┌──────────────────────┐                      │                                                  ║
+║   │ HexagonalSample      │ ─────────────────────┘                                                  ║
+║   │ Persistence          │                                                                         ║
+║   └──────────────────────┘                                                                         ║
+║                                                                                                    ║
+║   ✓ Domain katmanı hiçbir katmana bağımlı değildir (en iç katman)                                  ║
+║   ✓ Application katmanı sadece Domain'e bağımlıdır                                                 ║
+║   ✓ Persistence katmanı Domain'e bağımlıdır (interface'leri implement eder)                        ║
+║   ✓ WebApi katmanı Application'a bağımlıdır                                                        ║
+║   ✓ ApiHost tüm katmanları birleştirir (Composition Root)                                          ║
+║                                                                                                    ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+
+╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                  CQRS + MEDIATOR PATTERN                                            ║
+╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║                                                                                                    ║
+║   HTTP Request                                                                                     ║
+║        │                                                                                           ║
+║        ▼                                                                                           ║
+║   ┌──────────────────────┐                                                                         ║
+║   │     Controller       │                                                                         ║
+║   │  _mediator.Send()    │                                                                         ║
+║   └──────────┬───────────┘                                                                         ║
+║              │                                                                                     ║
+║       ┌──────┴──────┐                                                                              ║
+║       ▼             ▼                                                                              ║
+║   ┌───────┐     ┌─────────┐                                                                        ║
+║   │COMMAND│     │  QUERY  │                                                                        ║
+║   │IRequest│    │IRequest │                                                                        ║
+║   └───┬───┘     └────┬────┘                                                                        ║
+║       │              │                                                                             ║
+║       ▼              ▼                                                                             ║
+║   ┌─────────────────────────────┐                                                                  ║
+║   │         MediatR             │  ◄── Mediator Pattern                                            ║
+║   │  (Request/Handler routing)  │                                                                  ║
+║   └────────────┬────────────────┘                                                                  ║
+║                │                                                                                   ║
+║         ┌──────┴──────┐                                                                            ║
+║         ▼             ▼                                                                            ║
+║   ┌───────────┐   ┌───────────┐                                                                    ║
+║   │ Command   │   │  Query    │                                                                    ║
+║   │ Handler   │   │ Handler   │                                                                    ║
+║   │(Write Op) │   │(Read Op)  │                                                                    ║
+║   └─────┬─────┘   └─────┬─────┘                                                                    ║
+║         │               │                                                                          ║
+║         ▼               ▼                                                                          ║
+║   ┌─────────────────────────────┐                                                                  ║
+║   │       IRepository           │  ◄── Secondary Port (Interface)                                  ║
+║   └────────────┬────────────────┘                                                                  ║
+║                │                                                                                   ║
+║                ▼                                                                                   ║
+║   ┌─────────────────────────────┐                                                                  ║
+║   │      EF Repository          │  ◄── Driven Adapter (Implementation)                             ║
+║   │   (DbContext Access)        │                                                                  ║
+║   └────────────┬────────────────┘                                                                  ║
+║                │                                                                                   ║
+║                ▼                                                                                   ║
+║   ┌─────────────────────────────┐                                                                  ║
+║   │         Database            │                                                                  ║
+║   └─────────────────────────────┘                                                                  ║
+║                                                                                                    ║
+║   ✓ Commands: Veriyi değiştiren operasyonlar (Create, Update, Delete)                              ║
+║   ✓ Queries: Veriyi okuyan operasyonlar (GetAll, GetById)                                          ║
+║   ✓ MediatR: Command/Query'leri ilgili Handler'lara yönlendirir                                    ║
+║   ✓ Handler: İş mantığını içerir, Repository üzerinden veri erişimi sağlar                         ║
+║                                                                                                    ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+
+╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                           SINGLE RESPONSIBILITY PRINCIPLE (SRP)                                     ║
+╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║                                                                                                    ║
+║   DependencyResolvers/ (Her resolver tek bir sorumluluğa sahiptir)                                 ║
+║                                                                                                    ║
+║   ┌─────────────────────────────────────────────────────────────────────────────────────────────┐  ║
+║   │                                                                                             │  ║
+║   │  Application Layer:                                                                         │  ║
+║   │  └── UseCaseResolver.cs                                                                     │  ║
+║   │      • Sorumluluk: MediatR ve Handler'ların DI kayıtları                                    │  ║
+║   │      • services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(...))                    │  ║
+║   │                                                                                             │  ║
+║   │  Persistence Layer:                                                                         │  ║
+║   │  ├── DbContextResolver.cs                                                                   │  ║
+║   │  │   • Sorumluluk: Sadece veritabanı bağlantısı                                             │  ║
+║   │  │   • services.AddDbContext<MyContext>(...)                                                │  ║
+║   │  │                                                                                          │  ║
+║   │  └── RepositoryResolver.cs                                                                  │  ║
+║   │      • Sorumluluk: Sadece repository kayıtları                                              │  ║
+║   │      • services.AddScoped<IRepository, Repository>()                                        │  ║
+║   │                                                                                             │  ║
+║   └─────────────────────────────────────────────────────────────────────────────────────────────┘  ║
+║                                                                                                    ║
+║   ✓ Her resolver kendi sorumluluğundaki kayıtları yapar                                            ║
+║   ✓ Resolver'lar ilgili katmanlarda bulunur (Domain'e değil!)                                      ║
+║   ✓ ApiHost (Composition Root) tüm resolver'ları çağırarak DI container'ı oluşturur                ║
+║                                                                                                    ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+
+╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                              HEXAGONAL vs ONION ARCHITECTURE                                        ║
+╠════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║                                                                                                    ║
+║   HEXAGONAL (Ports & Adapters)              │   ONION                                              ║
+║   ─────────────────────────────             │   ─────                                              ║
+║                                             │                                                      ║
+║   Primary Ports (Input)                     │   Application Interfaces                             ║
+║     └── Commands, Queries (IRequest)        │     └── IService interfaces                          ║
+║                                             │                                                      ║
+║   Driving Adapters                          │   Presentation/API Layer                             ║
+║     └── Controllers, CLI, etc.              │     └── Controllers                                  ║
+║                                             │                                                      ║
+║   Application Core                          │   Application Services                               ║
+║     └── Use Cases (Handlers)                │     └── Services implementation                      ║
+║                                             │                                                      ║
+║   Domain Core                               │   Domain Layer                                       ║
+║     └── Entities, Domain Services           │     └── Entities, Domain Services                    ║
+║                                             │                                                      ║
+║   Secondary Ports (Output)                  │   Domain Interfaces                                  ║
+║     └── IRepository interfaces              │     └── IRepository interfaces                       ║
+║                                             │                                                      ║
+║   Driven Adapters                           │   Infrastructure Layer                               ║
+║     └── EF Repositories, External APIs      │     └── EF Repositories, External APIs               ║
+║                                             │                                                      ║
+║   ✓ Her iki mimari de aynı prensibi takip eder: Dependency Inversion                               ║
+║   ✓ Hexagonal "port" ve "adapter" kavramlarını öne çıkarır                                         ║
+║   ✓ Onion katmanlı yapıyı vurgular                                                                 ║
+║   ✓ Her ikisinde de Domain en içte, bağımlılıkları yoktur                                          ║
+║                                                                                                    ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
